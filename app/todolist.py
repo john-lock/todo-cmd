@@ -148,17 +148,10 @@ class Todo:
     def list_priority(self, priority_level):
         self.cursor.execute(
             f"SELECT ID, Name, Details, Priority, Start FROM Task WHERE Priority = {priority_level}"
-            )
+        )
         results = self.cursor.fetchall()
         if results:
-            headers = [
-                "ID",
-                "Name",
-                "Details",
-                "Priority",
-                "Started on",
-                "Duration",
-            ]
+            headers = ["ID", "Name", "Details", "Priority", "Started on", "Duration"]
             return tabulate.tabulate(results, headers, tablefmt="fancy_grid")
         return "No tasks matching this priority level"
 
@@ -171,7 +164,7 @@ class Todo:
             new_priority = input("Task priority: ")
             if new_details and new_name and new_priority:
                 self.cursor.execute(
-                    'UPDATE Task SET Name = \'{}\', Details = "{}", Priorty = "{}", WHERE ID = {}'.format(
+                    "UPDATE Task SET Name = \'{0}\', Details ='{1}', Priority ='{2}' WHERE ID ='{3}'".format(
                         new_name, new_details, new_priority, task_id
                     )
                 )
@@ -186,5 +179,5 @@ class Todo:
         if result:
             self.cursor.execute(f"DELETE FROM Task WHERE ID = {task_id}")
             self.db.commit()
-            return f"Task to '{result[0]}' with ID '{task_id}' has been deleted"
+            return f"'{result[0]}' with ID '{task_id}' has been deleted"
         return "Task not found!"

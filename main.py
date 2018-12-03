@@ -1,17 +1,17 @@
 """
 Usage:
-    todolist todo <task_name>
-    todolist doing <task_id>
-    todolist done <task_id>
-    todolist edit_task <task_id>
-    todolist delete_task <task_id>
-    todolist list_todo
-    todolist list_doing
-    todolist list_done
-    todolist list_priority <priority_level>
-    todolist list_id
+    todo <task_name>
+    doing <task_id>
+    done <task_id>
+    edit <task_id>
+    delete <task_id>
+    list_todo
+    list_doing
+    list_done
+    list_priority <priority_level>
+    list_id
+    quit
 
-    todolist quit
 Options:
   -h --help     Show these commands.
 """
@@ -34,15 +34,12 @@ def docopt_cmd(func):
             opt = docopt(fn.__doc__, arg)
 
         except DocoptExit as e:
-            # The DocoptExit is thrown when the args do not match
-            # We print a message to the user and the usage block
             print("Invalid Command!")
             print(e)
             return
 
         except SystemExit:
-            # The SystemExit exception prints the usage for --help
-            # We do not need to do the print here
+            # --help is printed by default
             return
 
         return func(self, opt)
@@ -82,14 +79,14 @@ class Main(cmd.Cmd):
         print(self.todolist.done(task_id))
 
     @docopt_cmd
-    def do_edit_task(self, args):
-        """usage: edit_task <task_id>"""
+    def do_edit(self, args):
+        """usage: edit <task_id>"""
         task_id = args["<task_id>"]
         print(self.todolist.edit_task(task_id))
 
     @docopt_cmd
-    def do_delete_task(self, args):
-        """usage: delete_task <task_id>"""
+    def do_delete(self, args):
+        """usage: delete <task_id>"""
         task_id = args["<task_id>"]
         print(self.todolist.delete_task(task_id))
 
@@ -125,4 +122,5 @@ class Main(cmd.Cmd):
         exit()
 
 
-Main().cmdloop()
+if __name__ == "__main__":
+    Main().cmdloop()
