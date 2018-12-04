@@ -1,6 +1,5 @@
 import sqlite3
 import os
-from datetime import datetime
 import tabulate
 
 
@@ -15,10 +14,7 @@ def connect(filename):
             "Name TEXT NOT NULL,"
             "Details TEXT NOT NULL,"
             "Priority INTEGER NOT NULL,"
-            "Status TEXT NOT NULL,"
-            "Start DATETIME,"
-            "Finish DATETIME,"
-            "Duration DATETIME);"
+            "Status TEXT NOT NULL);"
         )
     return db
 
@@ -44,10 +40,7 @@ class Todo:
             if status == "Todo":
                 try:
                     self.cursor.execute(
-                        "UPDATE Task SET Status ='Doing',Start='{0}' WHERE ID = {1}".format(
-                            datetime.now().strftime("%Y-%m-%d %H:%M:%S"), task_id
-                        )
-                    )
+                        f"UPDATE Task SET Status ='Doing' WHERE ID = {task_id}")
                     self.db.commit()
                     return f"Task {task_id} has been updated"
                 except sqlite3.OperationalError:
@@ -59,9 +52,7 @@ class Todo:
             elif status == "Done":
                 try:
                     self.cursor.execute(
-                        "UPDATE Task SET Status ='Doing',Start='{0}', Finish='NULL' WHERE ID = {1}".format(
-                            datetime.now().strftime("%Y-%m-%d %H:%M:%S"), task_id
-                        )
+                        f"UPDATE Task SET Status ='Doing' WHERE ID = {task_id}"
                     )
                     self.db.commit()
                     return f"Task with ID {task_id} has been successfully updated!"
@@ -77,19 +68,7 @@ class Todo:
             status = results[0]
             if status == "Doing":
                 try:
-                    self.cursor.execute(f"SELECT Start FROM Task WHERE ID={task_id}")
-                    start_time = datetime.strptime(
-                        self.cursor.fetchone()[0], "%Y-%m-%d %H:%M:%S"
-                    )
-                    finish_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    duration = (
-                        datetime.strptime(finish_time, "%Y-%m-%d %H:%M:%S") - start_time
-                    )
-                    self.cursor.execute(
-                        "UPDATE Task SET Status='Done', Finish='{0}', Duration='{1}'  WHERE ID = {2}".format(
-                            finish_time, duration, task_id
-                        )
-                    )
+                    self.cursor.execute(f"UPDATE Task SET Status='Done' WHERE ID = {task_id}")
                     self.db.commit()
                     return f"Task with ID {task_id} has successfully been completed!"
                 except sqlite3.OperationalError:
@@ -119,17 +98,17 @@ class Todo:
 
     def list_doing(self):
         self.cursor.execute(
-            "SELECT ID, Name, Details, Priority, Start FROM Task WHERE Status='Doing'"
+            "SELECT ID, Name, Details, Priority FROM Task WHERE Status='Doing'"
         )
         results = self.cursor.fetchall()
         if results:
-            headers = ["ID", "Name", "Details", "Priority", "Start Time"]
+            headers = ["ID", "Name", "Details", "Priority"]
             return tabulate.tabulate(results, headers, tablefmt="fancy_grid")
         return "No tasks are being worked on currently"
 
     def list_done(self):
         self.cursor.execute(
-            "SELECT ID, Name, Details, Priority, Start, Finish, Duration FROM Task WHERE Status='Done'"
+            "SELECT ID, Name, Details, Priority FROM Task WHERE Status='Done'"
         )
         results = self.cursor.fetchall()
         if results:
@@ -138,20 +117,17 @@ class Todo:
                 "Name",
                 "Details",
                 "Priority",
-                "Started on",
-                "Finished on",
-                "Duration",
             ]
             return tabulate.tabulate(results, headers, tablefmt="fancy_grid")
         return "No tasks are being worked on currently!"
 
     def list_priority(self, priority_level):
         self.cursor.execute(
-            f"SELECT ID, Name, Details, Priority, Start FROM Task WHERE Priority = {priority_level}"
+            f"SELECT ID, Name, Details, Priority FROM Task WHERE Priority = {priority_level}"
         )
         results = self.cursor.fetchall()
         if results:
-            headers = ["ID", "Name", "Details", "Priority", "Started on", "Duration"]
+            headers = ["ID", "Name", "Details", "Priority"]
             return tabulate.tabulate(results, headers, tablefmt="fancy_grid")
         return "No tasks matching this priority level"
 
